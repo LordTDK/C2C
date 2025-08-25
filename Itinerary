@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trip Itinerary</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; background: #0b1020; color: #f5f6fa; padding-bottom: 70px; }
+    header { background: #111731; padding: 1rem; position: sticky; top: 0; text-align: center; z-index: 100; }
+    h1 { margin: 0; font-size: 1.2rem; }
+    .wrap { padding: 1rem; }
+    .card { background: #1a2142; padding: 1rem; border-radius: 12px; margin-bottom: 1rem; border: 1px solid #2a3561; }
+    .card.current { border: 2px solid #4cafef; background: #202a56; }
+    .time { font-weight: bold; font-size: 1rem; }
+    .title { font-size: 1.1rem; font-weight: bold; margin-top: 0.25rem; }
+    .details { margin-top: 0.5rem; font-size: 0.9rem; }
+    .detail-row { margin-bottom: 0.25rem; }
+    .detail-label { color: #9fb1d8; font-weight: 600; margin-right: 0.5rem; }
+    .empty { padding: 1rem; border: 1px dashed #2a3561; border-radius: 12px; text-align: center; color: #9fb1d8; }
+    h2 { font-size: 1.2rem; margin-bottom: 1rem; text-align: center; }
+    button { background: #2a3561; color: #fff; border: none; padding: 0.6rem 1rem; border-radius: 8px; margin: 0.25rem; font-size: 0.9rem; }
+    .nav { position: fixed; bottom: 0; left: 0; right: 0; background: #111731; padding: 0.5rem; text-align: center; border-top: 1px solid #2a3561; z-index: 200; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Trip Itinerary</h1>
+  </header>
+  <div class="wrap">
+    <div id="chipDate"></div>
+    <div id="list"></div>
+  </div>
+  <div class="nav">
+    <button onclick="prevDay()">◀ Prev</button>
+    <button onclick="nextDay()">Next ▶</button>
+    <button onclick="goToday()">📅 Today</button>
+    <button onclick="highlightNow()">⏰ Now / Next</button>
+  </div>
+  <script>
+    let grouped = new Map();
+    let allDates = [];
+    let currentIndex = 0;
+
+    function parseDateDMY(dateStr) {
+      if(!dateStr) return null;
+      const [d,m,y] = dateStr.split("/").map(x=>parseInt(x,10));
+      if(!d||!m||!y) return null;
+      return new Date(y, m-1, d);
+    }
+    function formatDateDDMMYY(d) {
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yy = String(d.getFullYear()).slice(-2);
+      return `${dd}-${mm}-${yy}`;
+    }
+
+    function csvToRows(text) {
+      const lines = text.trim().split(/\r?\n/);
+      return lines.map(line => line.split(","));
+    }
+
+    function parseEventsFromCustomCSV(rows) {
+      const header = rows[0];
+      const events = [];
+      for(let i=1;i<rows.length;i++) {
+        const r = rows[i];
+        if(!r[0]) continue;
+        const dt = parseDateDMY(r[0].trim());
+        if(!dt) continue;
+        const dateStr = formatDateDDMMYY(dt);
+        const dep = r[5]||"";
+        const arr = r[6]||"";
+        const from = r[2]||"";
+        const to = r[3]||"";
+        const mode = r[4]||"";
+        const todo = r[9]||"";
+        const activity = from && to ? `${from} → ${to}` : (from||to||"Activity");
+
+        const details = {};
+        header.forEach((col, idx) => {
+          if(r[idx] && col) details[col] = r[idx];
+        });
+
+        events.push({date:dateStr,time:dep||arr||"",activity,details});
+      }
+      return events;
+    }
+
+    function groupByDate(events){
+      const map = new Map();
+      for(const e of events){
+        if(!map.has(e.date)) map.set(e.date, []);
+        map.get(e.date).push(e);
+      }
+      return map;
+    }
+
+    function renderDay(dateStr, highlightTime=false){
+      const list = document.getElementById('list');
+      document.getElementById('chipDate').innerHTML = `<h2>${dateStr}</h2>`;
+      list.innerHTML = '';
+      const evts = grouped.get(dateStr) || [];
+      if(!evts.length){
+        list.innerHTML = '<div class="empty">No items for this day</div>';
+        return;
+      }
+      const now = new Date();
+      const nowHM = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+      let highlighted = false;
+      for(const e of evts){
+        const card = document.createElement('div'); card.className='card';
+        const t = document.createElement('div'); t.className='time'; t.textContent = e.time || 'All day';
+        const title = document.createElement('div'); title.className='title'; title.textContent = e.activity;
+        card.appendChild(t); card.appendChild(title);
+
+        const detailsDiv = document.createElement('div'); detailsDiv.className='details';
+        for(const [k,v] of Object.entries(e.details)){
+          const row = document.createElement('div'); row.className='detail-row';
+          row.innerHTML = `<span class="detail-label">${k}:</span> ${v}`;
+          detailsDiv.appendChild(row);
+        }
+        card.appendChild(detailsDiv);
+
+        if(highlightTime && !highlighted && e.time){
+          if(e.time >= nowHM){
+            card.classList.add('current');
+            highlighted = true;
+          }
+        }
+
+        list.appendChild(card);
+      }
+      if(highlightTime && !highlighted && list.lastChild){
+        list.lastChild.classList.add('current');
+      }
+    }
+
+    function prevDay(){ if(currentIndex>0){ currentIndex--; renderDay(allDates[currentIndex]); } }
+    function nextDay(){ if(currentIndex<allDates.length-1){ currentIndex++; renderDay(allDates[currentIndex]); } }
+    function goToday(){
+      const today = formatDateDDMMYY(new Date());
+      const idx = allDates.indexOf(today);
+      if(idx!==-1){ currentIndex=idx; renderDay(allDates[currentIndex]); }
+    }
+    function highlightNow(){
+      const today = formatDateDDMMYY(new Date());
+      const idx = allDates.indexOf(today);
+      if(idx!==-1){ currentIndex=idx; renderDay(allDates[currentIndex], true); }
+    }
+
+    async function init(){
+      const res = await fetch('Itinerary.csv');
+      const txt = await res.text();
+      const rows = csvToRows(txt);
+      const events = parseEventsFromCustomCSV(rows);
+      grouped = groupByDate(events);
+      allDates = Array.from(grouped.keys());
+      allDates.sort((a,b)=>{
+        const [da,ma,ya] = a.split('-').map(x=>parseInt(x));
+        const [db,mb,yb] = b.split('-').map(x=>parseInt(x));
+        return new Date(2000+ya,ma-1,da) - new Date(2000+yb,mb-1,db);
+      });
+
+      const today = formatDateDDMMYY(new Date());
+      currentIndex = allDates.indexOf(today);
+      if(currentIndex === -1) currentIndex = 0;
+      renderDay(allDates[currentIndex]);
+    }
+
+    init();
+  </script>
+</body>
+</html>
