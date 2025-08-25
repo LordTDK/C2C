@@ -283,6 +283,7 @@
                 const from = r[2] || "";
                 const to = r[3] || "";
                 const mode = r[4] || "";
+                const distance = r[8] || "";
                 const activity = from && to ? `${from} → ${to}` : (from || to || r[9] || "Activity");
                 
                 const details = {};
@@ -291,6 +292,7 @@
                 if (mode) details['Preferred mode of transport'] = mode;
                 if (dep) details['Departure Time'] = dep;
                 if (arr) details['Arrival Time'] = arr;
+                if (distance) details['Distance'] = distance;
                 
                 evts.push({ date: dateStr, time: dep || arr || "", activity, details, id: `${dateStr}-${i}` });
             }
@@ -408,6 +410,14 @@
                     const arrRow = document.createElement('div'); arrRow.className = 'detail-row';
                     arrRow.innerHTML = `<span class="detail-label">Arrival:</span> ${e.details['Arrival Time']}`;
                     detailsDiv.appendChild(arrRow);
+                }
+                
+                // Add the new "Distance" row
+                if(e.details['Distance']) {
+                    const distRow = document.createElement('div');
+                    distRow.className = 'detail-row';
+                    distRow.innerHTML = `<span class="detail-label">Distance:</span> ${e.details['Distance']} miles`;
+                    detailsDiv.appendChild(distRow);
                 }
 
                 const cb = document.createElement('input');
