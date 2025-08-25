@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Trip Itinerary</title>
     <style>
-        body { font-family: system-ui, sans-serif; margin: 0; background: #0b1020; color: #f5f6fa; }
+        body { font-family: system-ui, sans-serif; margin: 0; background: #0b1020; color: #f5f6fa; display: flex; flex-direction: column; min-height: 100vh; }
         header { background: #111731; padding: 1rem; text-align: center; position: sticky; top: 0; z-index: 10; }
         h1 { margin: 0; font-size: 1.2rem; }
-        .wrap { padding: 1rem; }
+        .wrap { padding: 1rem; flex-grow: 1; }
         h2 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid #2a3561; padding-bottom: 0.25rem; }
         .card { background: #1a2142; padding: 1rem; border-radius: 12px; margin-bottom: 0.75rem; border: 1px solid #2a3561; position: relative; }
         .time { font-weight: bold; font-size: 1rem; }
@@ -28,9 +28,10 @@
             padding: 0.5rem 1rem;
             background: #111731;
             position: sticky;
-            top: 3.5rem; /* Below the header */
+            bottom: 0;
             z-index: 9;
-            border-bottom: 1px solid #2a3561;
+            border-top: 1px solid #2a3561;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
         }
         .nav-button {
             background: #2a3561;
@@ -48,6 +49,8 @@
         .date-display {
             font-size: 1.1rem;
             font-weight: bold;
+            flex-grow: 1;
+            text-align: center;
         }
     </style>
 </head>
@@ -55,12 +58,13 @@
     <header>
         <h1>Trip Itinerary</h1>
     </header>
+    <div class="wrap" id="list"></div>
     <div class="navigation">
         <button id="prevBtn" class="nav-button">⬅️ Previous</button>
         <span id="dateDisplay" class="date-display"></span>
+        <button id="todayBtn" class="nav-button">Today</button>
         <button id="nextBtn" class="nav-button">Next ➡️</button>
     </div>
-    <div class="wrap" id="list"></div>
     <script>
         let grouped = new Map();
         let allDates = [];
@@ -108,7 +112,6 @@
                 const to = r[3] || "";
                 const activity = from && to ? `${from} → ${to}` : (from || to || "Activity");
                 
-                // We only need from, to, and times
                 const details = {};
                 if (from) details['From'] = from;
                 if (to) details['To'] = to;
@@ -174,7 +177,6 @@
                 const detailsDiv = document.createElement('div');
                 detailsDiv.className = 'details';
 
-                // Only show From, To, and Times
                 if(e.details['From']) {
                     const fromRow = document.createElement('div'); fromRow.className = 'detail-row';
                     fromRow.innerHTML = `<span class="detail-label">From:</span> ${e.details['From']}`;
@@ -203,7 +205,7 @@
                     const ids = JSON.parse(localStorage.getItem('doneIds') || '[]');
                     if (cb.checked && !ids.includes(e.id)) ids.push(e.id);
                     localStorage.setItem('doneIds', JSON.stringify(ids));
-                    renderDay(dateStr); // Re-render the current day
+                    renderDay(dateStr);
                 };
                 card.appendChild(cb);
                 card.appendChild(t);
@@ -221,6 +223,12 @@
             renderDay(dateStr);
         }
 
+        function findTodayIndex() {
+            const today = new Date();
+            const todayFormatted = formatDateDDMMYY(today);
+            return allDates.indexOf(todayFormatted);
+        }
+
         async function init() {
             const res = await fetch('Itinerary.csv');
             const txt = await res.text();
@@ -233,10 +241,8 @@
                 return new Date(2000 + ya, ma - 1, da) - new Date(2000 + yb, mb - 1, db);
             });
 
-            const today = new Date();
-            const todayFormatted = formatDateDDMMYY(today);
-            currentIndex = allDates.indexOf(todayFormatted);
-            if(currentIndex === -1) currentIndex = 0; // Fallback to first day if today isn't found
+            currentIndex = findTodayIndex();
+            if(currentIndex === -1) currentIndex = 0;
 
             document.getElementById('prevBtn').addEventListener('click', () => {
                 if (currentIndex > 0) {
@@ -248,6 +254,14 @@
             document.getElementById('nextBtn').addEventListener('click', () => {
                 if (currentIndex < allDates.length - 1) {
                     currentIndex++;
+                    updateUI();
+                }
+            });
+
+            document.getElementById('todayBtn').addEventListener('click', () => {
+                const todayIndex = findTodayIndex();
+                if (todayIndex !== -1) {
+                    currentIndex = todayIndex;
                     updateUI();
                 }
             });
