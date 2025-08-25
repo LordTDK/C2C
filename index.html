@@ -3,23 +3,97 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Trip Itinerary</title>
+    <title>Coast2Coast 2025</title>
     <style>
-        body { font-family: system-ui, sans-serif; margin: 0; background: #0b1020; color: #f5f6fa; display: flex; flex-direction: column; min-height: 100vh; }
-        header { background: #111731; padding: 1rem; text-align: center; position: sticky; top: 0; z-index: 10; }
-        h1 { margin: 0; font-size: 1.2rem; }
-        .wrap { padding: 1rem; flex-grow: 1; }
-        h2 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid #2a3561; padding-bottom: 0.25rem; }
-        .card { background: #1a2142; padding: 1rem; border-radius: 12px; margin-bottom: 0.75rem; border: 1px solid #2a3561; position: relative; }
-        .time { font-weight: bold; font-size: 1rem; }
-        .title { font-size: 1.1rem; font-weight: bold; margin-top: 0.25rem; }
-        .details { margin-top: 0.5rem; font-size: 0.9rem; }
-        .detail-row { margin-bottom: 0.25rem; }
-        .detail-label { color: #9fb1d8; font-weight: 600; margin-right: 0.5rem; }
-        .empty { padding: 1rem; border: 1px dashed #2a3561; border-radius: 12px; text-align: center; color: #9fb1d8; }
-        .current { border: 2px solid #4a90e2; box-shadow: 0 0 8px #4a90e2; }
-        .checkbox { position: absolute; top: 0.75rem; right: 0.75rem; }
-        input[type="checkbox"] { transform: scale(1.3); }
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            background: #0b1020;
+            color: #f5f6fa;
+            /* Use flexbox to push content between header and footer */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background: #111731;
+            padding: 1rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        h1 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+        .date-display-top {
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 0.5rem;
+            color: #9fb1d8;
+        }
+        .wrap {
+            padding: 1rem;
+            /* Allow content to grow and fill the space */
+            flex-grow: 1;
+        }
+        h2 {
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #2a3561;
+            padding-bottom: 0.25rem;
+        }
+        .card {
+            background: #1a2142;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            border: 1px solid #2a3561;
+            position: relative;
+        }
+        .time {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 0.25rem;
+        }
+        .details {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .detail-row {
+            margin-bottom: 0.25rem;
+        }
+        .detail-label {
+            color: #9fb1d8;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        .empty {
+            padding: 1rem;
+            border: 1px dashed #2a3561;
+            border-radius: 12px;
+            text-align: center;
+            color: #9fb1d8;
+        }
+        .current {
+            border: 2px solid #4a90e2;
+            box-shadow: 0 0 8px #4a90e2;
+        }
+        .checkbox {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+        }
+        input[type="checkbox"] {
+            transform: scale(1.3);
+        }
 
         .navigation {
             display: flex;
@@ -27,9 +101,11 @@
             align-items: center;
             padding: 0.5rem 1rem;
             background: #111731;
+            /* Stick the navigation to the bottom */
             position: sticky;
             bottom: 0;
             z-index: 9;
+            /* Add border and shadow for visual separation */
             border-top: 1px solid #2a3561;
             box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
         }
@@ -46,24 +122,29 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
-        .date-display {
+        .date-display-bottom {
             font-size: 1.1rem;
             font-weight: bold;
+            /* Allow the date display to take up available space */
             flex-grow: 1;
             text-align: center;
+        }
+        .date-display-bottom.hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Trip Itinerary</h1>
+        <h1>Coast2Coast 2025</h1>
+        <div id="dateDisplayTop" class="date-display-top"></div>
     </header>
     <div class="wrap" id="list"></div>
+    <!-- Navigation moved to the bottom -->
     <div class="navigation">
-        <button id="prevBtn" class="nav-button">⬅️ Previous</button>
-        <span id="dateDisplay" class="date-display"></span>
+        <button id="prevBtn" class="nav-button">⬅️</button>
         <button id="todayBtn" class="nav-button">Today</button>
-        <button id="nextBtn" class="nav-button">Next ➡️</button>
+        <button id="nextBtn" class="nav-button">➡️</button>
     </div>
     <script>
         let grouped = new Map();
@@ -71,6 +152,11 @@
         let events = [];
         let currentIndex = 0;
 
+        /**
+         * Parses a date string in Day/Month/Year format.
+         * @param {string} dateStr - The date string to parse.
+         * @returns {Date|null} The parsed Date object or null if invalid.
+         */
         function parseDateDMY(dateStr) {
             if (!dateStr) return null;
             const [d, m, y] = dateStr.split("/").map(x => parseInt(x, 10));
@@ -78,6 +164,11 @@
             return new Date(y, m - 1, d);
         }
 
+        /**
+         * Formats a Date object into a DD-MM-YY string.
+         * @param {Date} d - The Date object to format.
+         * @returns {string} The formatted date string.
+         */
         function formatDateDDMMYY(d) {
             const dd = String(d.getDate()).padStart(2, '0');
             const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -85,20 +176,35 @@
             return `${dd}-${mm}-${yy}`;
         }
         
+        /**
+         * Formats a date string for display (e.g., "Monday, August 25, 2025").
+         * @param {string} dStr - The date string in DD-MM-YY format.
+         * @returns {string} The user-friendly date string.
+         */
         function formatDateForDisplay(dStr) {
             const [dd, mm, yy] = dStr.split('-');
+            // Assuming 21st century for 'YY' format
             const date = new Date(`20${yy}`, mm - 1, dd);
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             return date.toLocaleDateString('en-US', options);
         }
 
+        /**
+         * Converts CSV text into an array of row arrays.
+         * @param {string} text - The CSV text.
+         * @returns {string[][]} An array of rows.
+         */
         function csvToRows(text) {
             const lines = text.trim().split(/\r?\n/);
             return lines.map(line => line.split(","));
         }
 
+        /**
+         * Parses event data from a custom CSV format.
+         * @param {string[][]} rows - The CSV rows.
+         * @returns {Array<Object>} An array of event objects.
+         */
         function parseEventsFromCustomCSV(rows) {
-            const header = rows[0];
             const evts = [];
             for (let i = 1; i < rows.length; i++) {
                 const r = rows[i];
@@ -112,6 +218,7 @@
                 const to = r[3] || "";
                 const activity = from && to ? `${from} → ${to}` : (from || to || "Activity");
                 
+                // Only include the required fields
                 const details = {};
                 if (from) details['From'] = from;
                 if (to) details['To'] = to;
@@ -123,6 +230,11 @@
             return evts;
         }
 
+        /**
+         * Groups events by date.
+         * @param {Array<Object>} events - The list of events.
+         * @returns {Map<string, Array<Object>>} A map with dates as keys and event arrays as values.
+         */
         function groupByDate(events) {
             const map = new Map();
             for (const e of events) {
@@ -132,6 +244,11 @@
             return map;
         }
 
+        /**
+         * Checks if an event is currently happening or will happen soon.
+         * @param {Object} evt - The event object.
+         * @returns {boolean} True if the event is a current or upcoming one.
+         */
         function isNowOrNext(evt) {
             if (!evt.time) return false;
             const [hh, mm] = evt.time.split(":").map(x => parseInt(x, 10));
@@ -140,9 +257,14 @@
             const [dd, mmDate, yy] = evt.date.split('-').map(x => parseInt(x, 10));
             const evtDate = new Date(2000 + yy, mmDate - 1, dd, hh, mm || 0);
             const diff = evtDate - now;
+            // Highlight if now or within next 2 hours
             return diff >= 0 && diff < 2 * 60 * 60 * 1000;
         }
 
+        /**
+         * Renders the itinerary for a specific date.
+         * @param {string} dateStr - The date string to render.
+         */
         function renderDay(dateStr) {
             const list = document.getElementById('list');
             list.innerHTML = '';
@@ -215,23 +337,41 @@
             }
         }
 
+        /**
+         * Updates the UI with the correct date and buttons state.
+         */
         function updateUI() {
             const dateStr = allDates[currentIndex];
-            document.getElementById('dateDisplay').textContent = formatDateForDisplay(dateStr);
+            document.getElementById('dateDisplayTop').textContent = formatDateForDisplay(dateStr);
             document.getElementById('prevBtn').disabled = currentIndex === 0;
             document.getElementById('nextBtn').disabled = currentIndex === allDates.length - 1;
             renderDay(dateStr);
         }
 
+        /**
+         * Finds the index of the current date in the allDates array.
+         * @returns {number} The index, or -1 if not found.
+         */
         function findTodayIndex() {
             const today = new Date();
             const todayFormatted = formatDateDDMMYY(today);
             return allDates.indexOf(todayFormatted);
         }
 
+        /**
+         * Initializes the application by fetching data and setting up event listeners.
+         */
         async function init() {
-            const res = await fetch('Itinerary.csv');
-            const txt = await res.text();
+            // Note: In a real-world scenario, you would have an Itinerary.csv file.
+            // For this demonstration, we'll use a sample data string.
+            const sampleCSV = `Date,Service,From,To,Confirmation,Departure Time,Arrival Time,Details
+20/12/23,Flight,London,Paris,ABC1234,14:30,17:00,
+21/12/23,Train,Paris,Brussels,XYZ5678,09:15,11:00,
+21/12/23,Activity,Brussels,Brussels,N/A,14:00,16:30,Grand Place tour
+22/12/23,Accommodation,Brussels,Brussels,N/A,,,"Hotel booking, check-in 15:00"
+23/12/23,Flight,Brussels,London,DEF9012,18:00,20:00,`;
+
+            const txt = sampleCSV;
             events = parseEventsFromCustomCSV(csvToRows(txt));
             grouped = groupByDate(events);
             allDates = Array.from(grouped.keys());
@@ -241,6 +381,7 @@
                 return new Date(2000 + ya, ma - 1, da) - new Date(2000 + yb, mb - 1, db);
             });
 
+            // Set the initial index to today's date if it exists, otherwise, the first day
             currentIndex = findTodayIndex();
             if(currentIndex === -1) currentIndex = 0;
 
@@ -258,6 +399,7 @@
                 }
             });
 
+            // Event listener for the new "Today" button
             document.getElementById('todayBtn').addEventListener('click', () => {
                 const todayIndex = findTodayIndex();
                 if (todayIndex !== -1) {
