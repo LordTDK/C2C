@@ -10,7 +10,6 @@
             margin: 0;
             background: #0b1020;
             color: #f5f6fa;
-            /* Use flexbox to push content between header and footer */
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -36,7 +35,6 @@
         }
         .wrap {
             padding: 1rem;
-            /* Allow content to grow and fill the space */
             flex-grow: 1;
         }
         h2 {
@@ -94,18 +92,15 @@
         input[type="checkbox"] {
             transform: scale(1.3);
         }
-
         .navigation {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0.5rem 1rem;
             background: #111731;
-            /* Stick the navigation to the bottom */
             position: sticky;
             bottom: 0;
             z-index: 9;
-            /* Add border and shadow for visual separation */
             border-top: 1px solid #2a3561;
             box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
         }
@@ -125,12 +120,50 @@
         .date-display-bottom {
             font-size: 1.1rem;
             font-weight: bold;
-            /* Allow the date display to take up available space */
             flex-grow: 1;
             text-align: center;
         }
         .date-display-bottom.hidden {
             display: none;
+        }
+        .countdown-container {
+            text-align: center;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        .countdown-message {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4a90e2;
+            margin-bottom: 1rem;
+        }
+        #countdownTimer {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #f5f6fa;
+            margin-bottom: 1.5rem;
+            background: #1a2142;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid #2a3561;
+            box-shadow: 0 0 15px rgba(74, 144, 226, 0.5);
+        }
+        .countdown-button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .countdown-button:hover {
+            background: #3973b7;
         }
     </style>
 </head>
@@ -139,8 +172,18 @@
         <h1>Coast2Coast 2025</h1>
         <div id="dateDisplayTop" class="date-display-top"></div>
     </header>
-    <div class="wrap" id="list"></div>
-    <!-- Navigation moved to the bottom -->
+    <div id="appContainer" class="wrap">
+        <div id="itineraryView">
+            <div id="list"></div>
+        </div>
+        <div id="countdownView" style="display:none;">
+            <div class="countdown-container">
+                <div class="countdown-message">Countdown to start</div>
+                <div id="countdownTimer"></div>
+                <button id="backBtn" class="countdown-button">Back to Itinerary</button>
+            </div>
+        </div>
+    </div>
     <div class="navigation">
         <button id="prevBtn" class="nav-button">⬅️</button>
         <button id="todayBtn" class="nav-button">Today</button>
@@ -151,6 +194,7 @@
         let allDates = [];
         let events = [];
         let currentIndex = 0;
+        let countdownInterval;
 
         /**
          * Parses a date string in Day/Month/Year format.
@@ -183,7 +227,6 @@
          */
         function formatDateForDisplay(dStr) {
             const [dd, mm, yy] = dStr.split('-');
-            // Assuming 21st century for 'YY' format
             const date = new Date(`20${yy}`, mm - 1, dd);
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             return date.toLocaleDateString('en-US', options);
@@ -218,7 +261,6 @@
                 const to = r[3] || "";
                 const activity = from && to ? `${from} → ${to}` : (from || to || "Activity");
                 
-                // Only include the required fields
                 const details = {};
                 if (from) details['From'] = from;
                 if (to) details['To'] = to;
@@ -257,7 +299,6 @@
             const [dd, mmDate, yy] = evt.date.split('-').map(x => parseInt(x, 10));
             const evtDate = new Date(2000 + yy, mmDate - 1, dd, hh, mm || 0);
             const diff = evtDate - now;
-            // Highlight if now or within next 2 hours
             return diff >= 0 && diff < 2 * 60 * 60 * 1000;
         }
 
@@ -338,6 +379,47 @@
         }
 
         /**
+         * Displays the countdown timer view.
+         */
+        function showCountdown() {
+            document.getElementById('itineraryView').style.display = 'none';
+            document.getElementById('countdownView').style.display = 'block';
+            document.getElementById('dateDisplayTop').style.display = 'none';
+            clearInterval(countdownInterval);
+            
+            const firstDate = new Date(`20${allDates[0].slice(-2)}`, allDates[0].slice(3, 5) - 1, allDates[0].slice(0, 2));
+            
+            countdownInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = firstDate.getTime() - now;
+
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('countdownTimer').innerHTML = "The trip has begun!";
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById('countdownTimer').innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }, 1000);
+        }
+
+        /**
+         * Displays the itinerary view.
+         */
+        function showItinerary() {
+            clearInterval(countdownInterval);
+            document.getElementById('itineraryView').style.display = 'block';
+            document.getElementById('countdownView').style.display = 'none';
+            document.getElementById('dateDisplayTop').style.display = 'block';
+            updateUI();
+        }
+
+        /**
          * Updates the UI with the correct date and buttons state.
          */
         function updateUI() {
@@ -376,7 +458,7 @@ Date,Day,From,To,Mode,Departure,Arrival,Duration,Distance (miles),To-do,,,Modes,
 12/11/2025,Wednesday,Container Park,Park MGM,Uber,,,,5.4,11:30am - 11pm,,,Train,,19/11/2025,Wednesday,NY,,,,,,,,
 13/11/2025,Thursday,Park MGM,Duck Donuts,Foot,07:30,08:00,00:25,1.1,Breakfast Donuts,,,Waymo,,20/11/2025,Thursday,NY,,,,,,,,
 13/11/2025,Thursday,Duck Donuts,The Venician,Foot,,09:30,,0.7,Gondoliers singing,,,BART,,21/11/2025,Friday,NY,,,,,,,,
-13/11/2025,Thursday,The Venician,,,,,,,9:45am & 4:20pm,,,Yellow Taxi,,22/11/2025,Saturday,NY → UK,,,,,,,,
+13/11/2025,Thursday,The Venetian,,,,,,,9:45am & 4:20pm,,,Yellow Taxi,,22/11/2025,Saturday,NY → UK,,,,,,,,
 13/11/2025,Thursday,The Venetian,Casino Royale,Foot,,,,0.2,Cheap food,,,Ferry,,23/11/2025,Sunday,UK ,,,,,,,,
 13/11/2025,Thursday,Casino Royale,Linq Boulevard ,Foot,,,,0.2,Shops & food,,,Bike,,,,,,,,,,,,
 13/11/2025,Thursday,Linq Boulevard ,The Sphere,Foot,,,,0.9,View from Sands Ave,,,,,,,,,,,,,,,
@@ -480,7 +562,6 @@ Date,Day,From,To,Mode,Departure,Arrival,Duration,Distance (miles),To-do,,,Modes,
 22/11/2025,Saturday,JFK Airport,Heathrow,Plane,18:50,06:45,06:55,3442,,,,,,,,,,,,,,,,
 23/11/2025,Sunday,Heathrow,Poole,Car,07:45,09:45,02:00,95.7,,,,,,,,,,,,,,,,`;
                 
-                // Parse and group the events
                 events = parseEventsFromCustomCSV(csvToRows(txt));
                 grouped = groupByDate(events);
                 allDates = Array.from(grouped.keys());
@@ -490,34 +571,54 @@ Date,Day,From,To,Mode,Departure,Arrival,Duration,Distance (miles),To-do,,,Modes,
                     return new Date(2000 + ya, ma - 1, da) - new Date(2000 + yb, mb - 1, db);
                 });
 
-                // Set the initial index to today's date if it exists, otherwise, the first day
                 currentIndex = findTodayIndex();
                 if(currentIndex === -1) currentIndex = 0;
 
                 document.getElementById('prevBtn').addEventListener('click', () => {
                     if (currentIndex > 0) {
                         currentIndex--;
-                        updateUI();
+                        showItinerary();
                     }
                 });
 
                 document.getElementById('nextBtn').addEventListener('click', () => {
                     if (currentIndex < allDates.length - 1) {
                         currentIndex++;
-                        updateUI();
+                        showItinerary();
                     }
                 });
 
-                // Event listener for the new "Today" button
                 document.getElementById('todayBtn').addEventListener('click', () => {
-                    const todayIndex = findTodayIndex();
-                    if (todayIndex !== -1) {
-                        currentIndex = todayIndex;
-                        updateUI();
+                    const today = new Date();
+                    const firstDate = new Date(`20${allDates[0].slice(-2)}`, allDates[0].slice(3, 5) - 1, allDates[0].slice(0, 2));
+                    
+                    if (today.getTime() < firstDate.getTime()) {
+                        showCountdown();
+                    } else {
+                        const todayIndex = findTodayIndex();
+                        if (todayIndex !== -1) {
+                            currentIndex = todayIndex;
+                        } else {
+                            // If today's date is not in the itinerary but after the start, show the last known date.
+                            currentIndex = allDates.length - 1;
+                        }
+                        showItinerary();
                     }
                 });
 
-                updateUI();
+                document.getElementById('backBtn').addEventListener('click', () => {
+                    showItinerary();
+                });
+
+                // Initial render based on the current date
+                const today = new Date();
+                const firstDate = new Date(`20${allDates[0].slice(-2)}`, allDates[0].slice(3, 5) - 1, allDates[0].slice(0, 2));
+                if (today.getTime() < firstDate.getTime()) {
+                    showCountdown();
+                } else {
+                    showItinerary();
+                }
+
             } catch (error) {
                 console.error("Error loading itinerary:", error);
                 document.getElementById('list').innerHTML = `<div class="empty">Error loading itinerary. Please check the file.</div>`;
