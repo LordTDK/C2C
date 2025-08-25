@@ -264,11 +264,13 @@
                 const arr = r[6] || "";
                 const from = r[2] || "";
                 const to = r[3] || "";
+                const mode = r[4] || "";
                 const activity = from && to ? `${from} → ${to}` : (from || to || "Activity");
                 
                 const details = {};
                 if (from) details['From'] = from;
                 if (to) details['To'] = to;
+                if (mode) details['Preferred mode of transport'] = mode;
                 if (dep) details['Departure Time'] = dep;
                 if (arr) details['Arrival Time'] = arr;
                 
@@ -371,6 +373,14 @@
                     detailsDiv.appendChild(toRow);
                 }
                 
+                // Add the new "Preferred mode of transport" row
+                if(e.details['Preferred mode of transport']) {
+                    const modeRow = document.createElement('div');
+                    modeRow.className = 'detail-row';
+                    modeRow.innerHTML = `<span class="detail-label">Preferred mode of transport:</span> ${e.details['Preferred mode of transport']}`;
+                    detailsDiv.appendChild(modeRow);
+                }
+
                 if(e.details['Departure Time']) {
                     const depRow = document.createElement('div'); depRow.className = 'detail-row';
                     depRow.innerHTML = `<span class="detail-label">Departure:</span> ${e.details['Departure Time']}`;
@@ -466,7 +476,7 @@
          */
         async function init() {
             try {
-                // Read the itinerary data from the local CSV file using the content_fetcher tool.
+                // Hard-coded itinerary data to avoid file loading issues in sandboxed environments.
                 const txt = `,,,,,,,,,,,,,,By Locations,,,,,,Sunrise,Sunset,Low,High ,Avg
 Date,Day,From,To,Mode,Departure,Arrival,Duration,Distance (miles),To-do,,,Modes,,Date,Day,Location,,,LV,06:15,16:34,8.5°C,19.3°C,13.5°C
 12/11/2025,Wednesday,Poole,Heathrow,Car,11:00,13:00,02:00,95.7,,,,Plane,,12/11/2025,Wednesday,UK → LV,,,SF,06:50,16:57,9.0°C,17.1°C,12.4°C
