@@ -73,6 +73,11 @@
             font-weight: 600;
             margin-right: 0.5rem;
         }
+        .clickable-location {
+            color: #6da2f8;
+            text-decoration: underline;
+            cursor: pointer;
+        }
         .empty {
             padding: 1rem;
             border: 1px dashed #2a3561;
@@ -303,6 +308,15 @@
         }
 
         /**
+         * Opens the device's default map app with directions to a specified destination.
+         * @param {string} destination - The name of the destination.
+         */
+        function openInMaps(destination) {
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+            window.open(url, '_blank');
+        }
+
+        /**
          * Renders the itinerary for a specific date.
          * @param {string} dateStr - The date string to render.
          */
@@ -340,16 +354,23 @@
                 const detailsDiv = document.createElement('div');
                 detailsDiv.className = 'details';
 
+                // Make "From" location clickable
                 if(e.details['From']) {
-                    const fromRow = document.createElement('div'); fromRow.className = 'detail-row';
-                    fromRow.innerHTML = `<span class="detail-label">From:</span> ${e.details['From']}`;
+                    const fromRow = document.createElement('div'); 
+                    fromRow.className = 'detail-row';
+                    fromRow.innerHTML = `<span class="detail-label">From:</span> <span class="clickable-location">${e.details['From']}</span>`;
+                    fromRow.querySelector('.clickable-location').addEventListener('click', () => openInMaps(e.details['From']));
                     detailsDiv.appendChild(fromRow);
                 }
+                // Make "To" location clickable
                 if(e.details['To']) {
-                    const toRow = document.createElement('div'); toRow.className = 'detail-row';
-                    toRow.innerHTML = `<span class="detail-label">To:</span> ${e.details['To']}`;
+                    const toRow = document.createElement('div'); 
+                    toRow.className = 'detail-row';
+                    toRow.innerHTML = `<span class="detail-label">To:</span> <span class="clickable-location">${e.details['To']}</span>`;
+                    toRow.querySelector('.clickable-location').addEventListener('click', () => openInMaps(e.details['To']));
                     detailsDiv.appendChild(toRow);
                 }
+                
                 if(e.details['Departure Time']) {
                     const depRow = document.createElement('div'); depRow.className = 'detail-row';
                     depRow.innerHTML = `<span class="detail-label">Departure:</span> ${e.details['Departure Time']}`;
