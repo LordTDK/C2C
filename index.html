@@ -189,10 +189,16 @@
                 <button id="backBtn" class="countdown-button">Back to Itinerary</button>
             </div>
         </div>
+        <div id="completedView" style="display:none;">
+            <h2>Completed Activities</h2>
+            <div id="completedList"></div>
+            <button id="backFromCompletedBtn" class="countdown-button">Back to Itinerary</button>
+        </div>
     </div>
     <div class="navigation">
         <button id="prevBtn" class="nav-button">⬅️</button>
         <button id="todayBtn" class="nav-button">Today</button>
+        <button id="completedBtn" class="nav-button">✅</button>
         <button id="nextBtn" class="nav-button">➡️</button>
     </div>
     <script>
@@ -438,11 +444,88 @@
         }
 
         /**
+         * Renders the list of completed events.
+         */
+        function renderCompleted() {
+            const list = document.getElementById('completedList');
+            list.innerHTML = '';
+
+            const doneIds = JSON.parse(localStorage.getItem('doneIds') || '[]');
+            const completedEvents = events.filter(e => doneIds.includes(e.id));
+            
+            if (completedEvents.length === 0) {
+                list.innerHTML = `<div class="empty">No completed activities yet.</div>`;
+                return;
+            }
+
+            for (const e of completedEvents) {
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                const t = document.createElement('div');
+                t.className = 'time';
+                t.textContent = e.time || 'All day';
+
+                const title = document.createElement('div');
+                title.className = 'title';
+                title.textContent = e.activity;
+
+                const detailsDiv = document.createElement('div');
+                detailsDiv.className = 'details';
+
+                if(e.details['From']) {
+                    const fromRow = document.createElement('div'); 
+                    fromRow.className = 'detail-row';
+                    fromRow.innerHTML = `<span class="detail-label">From:</span> <span class="clickable-location">${e.details['From']}</span>`;
+                    fromRow.querySelector('.clickable-location').addEventListener('click', () => openInMaps(e.details['From']));
+                    detailsDiv.appendChild(fromRow);
+                }
+                if(e.details['To']) {
+                    const toRow = document.createElement('div'); 
+                    toRow.className = 'detail-row';
+                    toRow.innerHTML = `<span class="detail-label">To:</span> <span class="clickable-location">${e.details['To']}</span>`;
+                    toRow.querySelector('.clickable-location').addEventListener('click', () => openInMaps(e.details['To']));
+                    detailsDiv.appendChild(toRow);
+                }
+                if(e.details['Preferred mode of transport']) {
+                    const modeRow = document.createElement('div');
+                    modeRow.className = 'detail-row';
+                    modeRow.innerHTML = `<span class="detail-label">Preferred mode of transport:</span> ${e.details['Preferred mode of transport']}`;
+                    detailsDiv.appendChild(modeRow);
+                }
+                if(e.details['Distance']) {
+                    const distRow = document.createElement('div');
+                    distRow.className = 'detail-row';
+                    distRow.innerHTML = `<span class="detail-label">Distance:</span> ${e.details['Distance']} miles`;
+                    detailsDiv.appendChild(distRow);
+                }
+
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.className = 'checkbox';
+                cb.checked = true; // All items on this page are checked
+                cb.onchange = () => {
+                    let ids = JSON.parse(localStorage.getItem('doneIds') || '[]');
+                    ids = ids.filter(id => id !== e.id);
+                    localStorage.setItem('doneIds', JSON.stringify(ids));
+                    renderCompleted();
+                };
+                card.appendChild(cb);
+                card.appendChild(t);
+                card.appendChild(title);
+                card.appendChild(detailsDiv);
+                list.appendChild(card);
+            }
+        }
+
+
+        /**
          * Displays the countdown timer view.
          */
         function showCountdown() {
             document.getElementById('itineraryView').style.display = 'none';
             document.getElementById('countdownView').style.display = 'block';
+            document.getElementById('completedView').style.display = 'none';
             document.getElementById('dateDisplayTop').style.display = 'none';
             clearInterval(countdownInterval);
             
@@ -475,9 +558,23 @@
             clearInterval(countdownInterval);
             document.getElementById('itineraryView').style.display = 'block';
             document.getElementById('countdownView').style.display = 'none';
+            document.getElementById('completedView').style.display = 'none';
             document.getElementById('dateDisplayTop').style.display = 'block';
             updateUI();
         }
+
+        /**
+         * Displays the completed activities view.
+         */
+        function showCompleted() {
+            clearInterval(countdownInterval);
+            document.getElementById('itineraryView').style.display = 'none';
+            document.getElementById('countdownView').style.display = 'none';
+            document.getElementById('completedView').style.display = 'block';
+            document.getElementById('dateDisplayTop').style.display = 'none'; // Hide the date for this view
+            renderCompleted();
+        }
+
 
         /**
          * Updates the UI with the correct date and buttons state.
@@ -553,8 +650,16 @@
                         showItinerary();
                     }
                 });
+                
+                document.getElementById('completedBtn').addEventListener('click', () => {
+                    showCompleted();
+                });
 
                 document.getElementById('backBtn').addEventListener('click', () => {
+                    showItinerary();
+                });
+                
+                document.getElementById('backFromCompletedBtn').addEventListener('click', () => {
                     showItinerary();
                 });
 
