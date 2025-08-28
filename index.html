@@ -33,6 +33,12 @@
             margin-top: 0.5rem;
             color: #9fb1d8;
         }
+        .progress-display {
+            font-size: 0.9rem;
+            color: #4caf50;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
         .wrap {
             padding: 1rem;
             flex-grow: 1;
@@ -177,6 +183,7 @@
     <header>
         <h1>Coast2Coast 2025</h1>
         <div id="dateDisplayTop" class="date-display-top"></div>
+        <div id="progressDisplay" class="progress-display"></div>
     </header>
     <div id="appContainer" class="wrap">
         <div id="itineraryView">
@@ -194,11 +201,17 @@
             <div id="completedList"></div>
             <button id="backFromCompletedBtn" class="countdown-button">Back to Itinerary</button>
         </div>
+        <div id="nextStopsView" style="display:none;">
+            <h2>Upcoming Stops</h2>
+            <div id="nextStopsList"></div>
+            <button id="backFromNextBtn" class="countdown-button">Back to Itinerary</button>
+        </div>
     </div>
     <div class="navigation">
         <button id="prevBtn" class="nav-button">⬅️</button>
         <button id="todayBtn" class="nav-button">Today</button>
         <button id="completedBtn" class="nav-button">✅</button>
+        <button id="nextStopsBtn" class="nav-button">🧭</button>
         <button id="nextBtn" class="nav-button">➡️</button>
     </div>
     <script>
@@ -434,6 +447,7 @@
                     if (cb.checked && !ids.includes(e.id)) ids.push(e.id);
                     localStorage.setItem('doneIds', JSON.stringify(ids));
                     renderDay(dateStr);
+                    updateProgress();
                 };
                 card.appendChild(cb);
                 card.appendChild(t);
@@ -509,11 +523,61 @@
                     ids = ids.filter(id => id !== e.id);
                     localStorage.setItem('doneIds', JSON.stringify(ids));
                     renderCompleted();
+                    updateProgress();
                 };
                 card.appendChild(cb);
                 card.appendChild(t);
                 card.appendChild(title);
                 card.appendChild(detailsDiv);
+                list.appendChild(card);
+            }
+        }
+        
+        /**
+         * Renders the list of upcoming locations.
+         */
+        function renderNextStops() {
+            const list = document.getElementById('nextStopsList');
+            list.innerHTML = '';
+            
+            const doneIds = JSON.parse(localStorage.getItem('doneIds') || '[]');
+            const today = allDates[currentIndex];
+            const upcomingEvents = events.filter(e => {
+                const eventDateIndex = allDates.indexOf(e.date);
+                const todayIndex = allDates.indexOf(today);
+                return eventDateIndex >= todayIndex && !doneIds.includes(e.id);
+            });
+            
+            const uniqueLocations = new Set();
+            for(const event of upcomingEvents) {
+                if(event.details['To']) {
+                    uniqueLocations.add(event.details['To']);
+                } else if(event.details['From']) {
+                    uniqueLocations.add(event.details['From']);
+                }
+            }
+            
+            if (uniqueLocations.size === 0) {
+                list.innerHTML = `<div class="empty">No upcoming stops to display.</div>`;
+                return;
+            }
+            
+            // Limit to the next 5 unique locations
+            const locationsToShow = Array.from(uniqueLocations).slice(0, 5);
+            
+            for(const location of locationsToShow) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="title">${location}</div>
+                    <div class="details">
+                        <div class="detail-row">
+                            <span class="detail-label">Map:</span>
+                            <span class="clickable-location">Get Directions</span>
+                        </div>
+                    </div>
+                `;
+                card.querySelector('.clickable-location').addEventListener('click', () => openInMaps(location));
                 list.appendChild(card);
             }
         }
@@ -526,6 +590,7 @@
             document.getElementById('itineraryView').style.display = 'none';
             document.getElementById('countdownView').style.display = 'block';
             document.getElementById('completedView').style.display = 'none';
+            document.getElementById('nextStopsView').style.display = 'none';
             document.getElementById('dateDisplayTop').style.display = 'none';
             clearInterval(countdownInterval);
             
@@ -559,7 +624,9 @@
             document.getElementById('itineraryView').style.display = 'block';
             document.getElementById('countdownView').style.display = 'none';
             document.getElementById('completedView').style.display = 'none';
+            document.getElementById('nextStopsView').style.display = 'none';
             document.getElementById('dateDisplayTop').style.display = 'block';
+            document.getElementById('progressDisplay').style.display = 'block';
             updateUI();
         }
 
@@ -571,8 +638,24 @@
             document.getElementById('itineraryView').style.display = 'none';
             document.getElementById('countdownView').style.display = 'none';
             document.getElementById('completedView').style.display = 'block';
+            document.getElementById('nextStopsView').style.display = 'none';
             document.getElementById('dateDisplayTop').style.display = 'none'; // Hide the date for this view
+            document.getElementById('progressDisplay').style.display = 'none';
             renderCompleted();
+        }
+        
+        /**
+         * Displays the next stops view.
+         */
+        function showNextStops() {
+            clearInterval(countdownInterval);
+            document.getElementById('itineraryView').style.display = 'none';
+            document.getElementById('countdownView').style.display = 'none';
+            document.getElementById('completedView').style.display = 'none';
+            document.getElementById('nextStopsView').style.display = 'block';
+            document.getElementById('dateDisplayTop').style.display = 'none'; // Hide the date for this view
+            document.getElementById('progressDisplay').style.display = 'none';
+            renderNextStops();
         }
 
 
@@ -585,6 +668,7 @@
             document.getElementById('prevBtn').disabled = currentIndex === 0;
             document.getElementById('nextBtn').disabled = currentIndex === allDates.length - 1;
             renderDay(dateStr);
+            updateProgress();
         }
 
         /**
@@ -595,6 +679,18 @@
             const today = new Date();
             const todayFormatted = formatDateDDMMYY(today);
             return allDates.indexOf(todayFormatted);
+        }
+        
+        /**
+         * Updates the progress tracker display.
+         */
+        function updateProgress() {
+            const doneIds = JSON.parse(localStorage.getItem('doneIds') || '[]');
+            const completedCount = doneIds.length;
+            const totalCount = events.length;
+            const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+            const progressText = `${completedCount} of ${totalCount} activities complete (${percentage}%)`;
+            document.getElementById('progressDisplay').textContent = progressText;
         }
 
         /**
@@ -654,12 +750,20 @@
                 document.getElementById('completedBtn').addEventListener('click', () => {
                     showCompleted();
                 });
+                
+                document.getElementById('nextStopsBtn').addEventListener('click', () => {
+                    showNextStops();
+                });
 
                 document.getElementById('backBtn').addEventListener('click', () => {
                     showItinerary();
                 });
                 
                 document.getElementById('backFromCompletedBtn').addEventListener('click', () => {
+                    showItinerary();
+                });
+                
+                document.getElementById('backFromNextBtn').addEventListener('click', () => {
                     showItinerary();
                 });
 
