@@ -1,0 +1,189 @@
+--- a/index (1).html
++++ b/index (1).html
+@@ -536,10 +536,75 @@
+         /**
+          * Renders the list of upcoming locations.
+          */
+-        function renderNextStops() {
++        
++async function renderNextStops() {
+             const list = document.getElementById('nextStopsList');
+-            list.innerHTML = '';
+-            
++            list.innerHTML = '<div class="empty">Finding nearby upcoming stops…</div>';
++
++            /***** Helper functions scoped inside renderNextStops to avoid global changes *****/
++            const GOOGLE_GEOCODING_API_KEY = ""; // <-- Optionally set your Google Geocoding API key here
++
++            function getCurrentPositionPromise(options = { enableHighAccuracy: true, timeout: 10000 }) {
++                return new Promise((resolve, reject) => {
++                    if (!navigator.geolocation) return reject(new Error("Geolocation not supported"));
++                    navigator.geolocation.getCurrentPosition(
++                        pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
++                        err => reject(err),
++                        options
++                    );
++                });
++            }
++
++            function haversineDistanceMeters(lat1, lon1, lat2, lon2) {
++                const toRad = x => x * Math.PI / 180.0;
++                const R = 6371000;
++                const dLat = toRad(lat2 - lat1);
++                const dLon = toRad(lon2 - lon1);
++                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
++                          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
++                          Math.sin(dLon/2) * Math.sin(dLon/2);
++                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
++                return R * c;
++            }
++
++            async function geocodeLocation(location) {
++                if (!location) throw new Error("Empty location");
++                const cacheKey = 'geocodeCache_v1';
++                let cache = {};
++                try { cache = JSON.parse(localStorage.getItem(cacheKey) || "{}"); } catch (e) { cache = {}; }
++                if (cache[location]) return cache[location];
++
++                let result = null;
++                try {
++                    if (GOOGLE_GEOCODING_API_KEY && GOOGLE_GEOCODING_API_KEY.trim().length > 0) {
++                        const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${GOOGLE_GEOCODING_API_KEY}`;
++                        const res = await fetch(url);
++                        const json = await res.json();
++                        if (json.status === 'OK' && json.results && json.results.length) {
++                            const r = json.results[0];
++                            result = { lat: parseFloat(r.geometry.location.lat), lon: parseFloat(r.geometry.location.lng), display_name: r.formatted_address };
++                        }
++                    } else {
++                        // Nominatim (OpenStreetMap) - light usage only. Add &email=you@domain.com if desired.
++                        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`;
++                        const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
++                        const arr = await res.json();
++                        if (Array.isArray(arr) && arr.length) {
++                            result = { lat: parseFloat(arr[0].lat), lon: parseFloat(arr[0].lon), display_name: arr[0].display_name };
++                        }
++                    }
++                } catch (err) {
++                    console.warn("Geocoding error for", location, err);
++                }
++
++                if (!result) throw new Error("Geocode failed");
++                cache[location] = result;
++                try { localStorage.setItem(cacheKey, JSON.stringify(cache)); } catch (e) { /* ignore storage errors */ }
++                return result;
++            }
++            /***** End helpers *****/
++
++            // Build set of upcoming unvisited locations (reuse existing logic)
+             const doneIds = JSON.parse(localStorage.getItem('doneIds') || '[]');
+             const today = allDates[currentIndex];
+             const upcomingEvents = events.filter(e => {
+@@ -547,40 +612,86 @@
+                 const todayIndex = allDates.indexOf(today);
+                 return eventDateIndex >= todayIndex && !doneIds.includes(e.id);
+             });
+-            
++
+             const uniqueLocations = new Set();
+-            for(const event of upcomingEvents) {
+-                if(event.details['To']) {
+-                    uniqueLocations.add(event.details['To']);
+-                } else if(event.details['From']) {
+-                    uniqueLocations.add(event.details['From']);
+-                }
+-            }
+-            
++            for (const event of upcomingEvents) {
++                if (event.details['To']) uniqueLocations.add(event.details['To']);
++                else if (event.details['From']) uniqueLocations.add(event.details['From']);
++            }
++
+             if (uniqueLocations.size === 0) {
+                 list.innerHTML = `<div class="empty">No upcoming stops to display.</div>`;
+                 return;
+             }
+-            
+-            // Limit to the next 5 unique locations
+-            const locationsToShow = Array.from(uniqueLocations).slice(0, 5);
+-            
+-            for(const location of locationsToShow) {
++
++            const locationsToGeocode = Array.from(uniqueLocations).slice(0, 30);
++
++            // Get user's current position
++            let userPos;
++            try {
++                userPos = await getCurrentPositionPromise();
++            } catch (err) {
++                list.innerHTML = `<div class="empty">Unable to get your location. Please allow location access in your browser to see nearby stops.</div>`;
++                return;
++            }
++
++            // Geocode (sequentially to be polite)
++            const geocoded = [];
++            for (const loc of locationsToGeocode) {
++                try {
++                    const g = await geocodeLocation(loc);
++                    if (g && typeof g.lat === 'number' && typeof g.lon === 'number') {
++                        const meters = haversineDistanceMeters(userPos.lat, userPos.lon, g.lat, g.lon);
++                        geocoded.push({ location: loc, lat: g.lat, lon: g.lon, display_name: g.display_name || loc, meters });
++                    }
++                } catch (e) {
++                    console.warn("Skipping geocode for", loc, e);
++                }
++            }
++
++            if (geocoded.length === 0) {
++                list.innerHTML = `<div class="empty">Could not geocode any upcoming stops.</div>`;
++                return;
++            }
++
++            // Sort and render
++            geocoded.sort((a, b) => a.meters - b.meters);
++            const top = geocoded.slice(0, 15);
++            list.innerHTML = '';
++
++            for (const item of top) {
+                 const card = document.createElement('div');
+                 card.className = 'card';
++                const miles = (item.meters / 1609.344);
++                const km = (item.meters / 1000);
++
+                 card.innerHTML = `
+-                    <div class="title">${location}</div>
++                    <div class="title">${item.location}</div>
+                     <div class="details">
+-                        <div class="detail-row">
+-                            <span class="detail-label">Map:</span>
+-                            <span class="clickable-location">Get Directions</span>
+-                        </div>
++                        <div class="detail-row"><span class="detail-label">Distance:</span> ${km.toFixed(1)} km (${miles.toFixed(1)} mi)</div>
++                        <div class="detail-row"><span class="detail-label">Place:</span> ${item.display_name}</div>
++                        <div class="detail-row"><span class="detail-label">Map:</span> <span class="clickable-location">Get Directions</span></div>
+                     </div>
+                 `;
+-                card.querySelector('.clickable-location').addEventListener('click', () => openInMaps(location));
++
++                card.querySelector('.clickable-location').addEventListener('click', () => {
++                    const latlng = `${item.lat},${item.lon}`;
++                    const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(latlng)}`;
++                    window.open(url, '_blank');
++                });
++
+                 list.appendChild(card);
+             }
+-        }
++
++            const footer = document.createElement('div');
++            footer.className = 'detail-row';
++            footer.style.marginTop = '8px';
++            footer.style.fontSize = '0.85rem';
++            footer.style.color = '#9fb1d8';
++            footer.textContent = `Your location: ${userPos.lat.toFixed(5)}, ${userPos.lon.toFixed(5)}`;
++            list.appendChild(footer);
++        }
++
+ 
+ 
+         /**
