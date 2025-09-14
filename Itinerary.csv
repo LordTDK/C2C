@@ -1,0 +1,113 @@
+Date,Day,From,To,Mode,Departure,Arrival,Duration,Distance (miles),To-do,Latitude,Longitude
+12/11/2025,Wednesday,Poole,Heathrow,Car,10:45,12:55,02:10,95.7,,51.47002,-0.454295
+12/11/2025,Wednesday,Heathrow,Harry Reid Airport,Plane,16:05,18:50,10:45,5229,,36.083134,-115.148315
+12/11/2025,Wednesday,Harry Reid Airport,Park MGM,Uber,19:50,20:00,00:10,2.9,,36.1042656,-115.1743894
+12/11/2025,Wednesday,Park MGM,Neon Museum,Uber,,21:00,,7,Old Neon Signs (last admission 9pm),36.177007,-115.135372
+12/11/2025,Wednesday,Neon Museum,Fremont Street,Uber,,,,1,5pm - 9pm,36.170719,-115.143929
+12/11/2025,Wednesday,Fremont Street,Mob Museum Speakeasy,Foot,,,,0.3,https://youtu.be/rhifA3rfQLU,36.1728312,-115.1412102
+12/11/2025,Wednesday,Mob Museum Speakeasy,Continer Park,Foot,,,,0.6,11am - 11pm,36.1708,-115.1393
+12/11/2025,Wednesday,Container Park,Park MGM,Uber,,,,5.4,11:30am - 11pm,36.1042656,-115.1743894
+13/11/2025,Thursday,Park MGM,Duck Donuts,Foot,07:30,08:00,00:25,1.1,Breakfast Donuts,36.1042656,-115.1743894
+13/11/2025,Thursday,Duck Donuts,The Venician,Foot,,09:30,,0.7,Gondoliers singing,36.1211636,-115.1697651
+13/11/2025,Thursday,The Venician,,,,,,,,36.1211636,-115.1697651
+13/11/2025,Thursday,The Venician,,,,,,,9:45am & 4:20pm,36.1211636,-115.1697651
+13/11/2025,Thursday,The Venetian,Casino Royale,Foot,,,,0.2,Cheap food,36.117,-115.1695
+13/11/2025,Thursday,Casino Royale,Linq Boulevard ,Foot,,,,0.2,Shops & food,36.1181941,-115.1709605
+13/11/2025,Thursday,Linq Boulevard ,The Sphere,Foot,,,,0.9,View from Sands Ave,36.12111,-115.16194
+13/11/2025,Thursday,The Sphere,Caesar's Palace,Foot,,,,1,Forum shops,36.117453,-115.176688
+13/11/2025,Thursday,Caesar's Palace,Bellagio,Foot,,,,0.4,Fountains and Gardens,36.112625,-115.176704
+13/11/2025,Thursday,Bellagio,Park MGM,Tram\Bus,20:30,,,1,,36.1042656,-115.1743894
+13/11/2025,Thursday,Park MGM,Tilted Kilt,Foot,,,,1.5,Dinner,36.1185393,?115.1690965
+13/11/2025,Thursday,Tilted Kilt,Park MGM,Foot,,,,1.5,11am - 1am,36.1042656,-115.1743894
+14/11/2025,Friday,Park MGM,IHOP,Uber,,,,4.3,Breakfast,36.10056,?115.13130
+14/11/2025,Friday,IHOP,Walmart,Foot,,,,0.4,24hrs,36.09805753,?115.1083896
+14/11/2025,Friday,Walmart,Park MGM,Uber,,,,4.2,6am - 11pm,36.1042656,-115.1743894
+14/11/2025,Friday,Park MGM,Excalibur,Foot,,,,0.5,,36.0927,-115.172
+14/11/2025,Friday,Excalibur,Luxor,Foot,,,,0.2,,36.09551,-115.176067
+14/11/2025,Friday,Luxor,MGM Grand,Foot,,,,0.6,,36.10239,-115.16776
+14/11/2025,Friday,MGM Grand,Planet Hollywood,Foot,,,,0.6,Lunch,36.10931,?115.172668
+14/11/2025,Friday,Planet Hollywood,Paris,Foot,,,,0.2,,36.112541,?115.170670
+14/11/2025,Friday,Paris,Park MGM,Foot,,,,1,,36.1042656,-115.1743894
+14/11/2025,Friday,Park MGM,Mandalay Bay,Foot,,,,1,Speakeasy Drinks,36.090395,?115.174998
+15/11/2025,Saturday,Park MGM,Harry Reid Airport,Uber,10:00,10:10,00:10,2.5,,36.083134,-115.148315
+15/11/2025,Saturday,Harry Reid Airport,San Francisco Airport,Plane,12:12,14:05,01:53,555,,37.619,?122.375000
+15/11/2025,Saturday,San Francisco Airport,Powell Street BART,BART,14:35,15:05,00:30,15,,37.78468,-122.40731
+15/11/2025,Saturday,Powell Street BART,Hotel Emblem,Foot,15:05,15:20,00:15,0.5,Drop off bags!,37.789207,-122.40978
+15/11/2025,Saturday,Hotel Emblem,Dragon Gate,Foot,,,,0.3,Entrance to Chinatown,37.79072,-122.40578
+15/11/2025,Saturday,Dragon Gate,Nintendo Store,Foot,,,,0.4,,37.7851,-122.4079
+15/11/2025,Saturday,Nintendo Store,Union Square,Foot,20:00,,,0.1,10am - 8pm,37.794565,-122.40783
+15/11/2025,Saturday,Union Square,Apple Store,Foot,20:00,,,0,"Looking, not shopping",37.78863,-122.407178
+15/11/2025,Saturday,Apple Store,Cheesecake Factory,Foot,23:00,,,0.2,10am - 8pm,37.786666,-122.407005
+15/11/2025,Saturday,Cheesecake Factory,Hotel Emblem,Foot,,,,0.3,Dinner 11am - 10pm,37.789207,-122.40978
+16/11/2025,Sunday,Hotel Emblem,Pier 33,Waymo,07:19,07:55,00:36,1.6,,37.806657,-122.404457
+16/11/2025,Sunday,Pier 33,Alcatraz,Ferry,08:40,09:00,,2.3,8:40am Ferry,37.8267,-122.423
+16/11/2025,Sunday,Alcatraz,Pier 33,Ferry,11:40,12:00,,2.3,Prison,37.806657,-122.404457
+16/11/2025,Sunday,Pier 33,Pier 39,Foot,,,,0.3,,37.8087,-122.4098
+16/11/2025,Sunday,Pier 39,Bubba Gump,Foot,,,,0.2,Lunch,37.809326,-122.409981
+16/11/2025,Sunday,Bubba Gump,Fishermans Wharf,Foot,,,,0.3,,37.80678,-122.41756
+16/11/2025,Sunday,Fishermans Wharf,Cable Car Museum,Foot,,,,1.5,,37.7948098,-122.4118632
+16/11/2025,Sunday,Cable Car Museum,Golden Gate Fortune Cookie Factory,Foot,,,,1.2,10am - 5pm,37.7948,-122.4105
+16/11/2025,Sunday,Golden Gate Fortune Cookie Factory,Hotel Emblem,Foot,,,,0.4,9am - 7pm,37.789207,-122.40978
+17/11/2025,Monday,Hotel Emblem,Pinecrest Diner,Foot,07:00,,,0.2,Breakfast in diner 24hrs,37.7799,-122.4118
+17/11/2025,Monday,Pinecrest Diner,Grace Cathedral,Foot,,,,0.4,,37.7919,-122.413
+17/11/2025,Monday,Grace Cathedral,GoCar Tours,Foot,,,,1.2,Electric 'car' hire,37.8056,-122.4183
+17/11/2025,Monday,GoCar Tours,Lombard Street,GoCar,,,,0.8,Wiggly Road,37.8021,-122.4187
+17/11/2025,Monday,Lombard Street,Golden Gate Bridge Welcome Center,GoCar,,,,3.7,Morning View of Bridge,37.8303213,-122.4797496
+17/11/2025,Monday,Golden Gate Bridge Welcome Center,Palace of Fine Arts,GoCar,,,,1.7,Posh Artistic Park,37.802914,-122.448578
+17/11/2025,Monday,Palace of Fine Arts,Grove Street\Painted Ladies,GoCar,,,,2.3,Coloured Houses,37.776,-122.4325
+17/11/2025,Monday,Grove Street\Painted Ladies,Rincon Park,GoCar,,,,3.7,Bow & Arrow,37.7924,-122.3903
+17/11/2025,Monday,Rincon Park,GoCar Tours,GoCar,,,,2.1,Drop off GoCar 1pm,37.8056,-122.4183
+17/11/2025,Monday,GoCar Tours,The Ferry Building,Waymo,,,,1.8,Food & drink 11am - 10pm,37.7955,-122.3937
+17/11/2025,Monday,The Ferry Building,Hotel Emblem,Tram\Bus,,,,1.6,,37.789207,-122.40978
+18/11/2025,Tuesday,Hotel Emblem,Powell Street BART,Foot,07:40,07:55,00:15,0.4,,37.78468,-122.40731
+18/11/2025,Tuesday,Powell Street BART,San Francisco Airport,BART,07:55,08:25,00:30,15,,37.619,?122.375000
+18/11/2025,Tuesday,San Francisco Airport,JFK Airport,Plane,11:00,19:35,05:35,2980,,40.6413,-73.7781
+18/11/2025,Tuesday,JFK Airport,The Lexington,Yellow Taxi,20:05,21:05,01:00,14.5,,40.755,-73.9733
+18/11/2025,Tuesday,The Lexington,Foxy John's Bar,Foot,21:00,,,0.1,Dinner,40.755,-73.9733
+18/11/2025,Tuesday,Foxy John's Bar,The Lexington,Foot,,,,0.1,11:30am - 1am,40.755,-73.9733
+19/11/2025,Wednesday,The Lexington,Flatiron Building,Foot,08:30,,,0.7,,40.7411,-73.9897
+19/11/2025,Wednesday,Flatiron Building,Harry Potter Store,Foot,,,,0,,40.7411,-73.9897
+19/11/2025,Wednesday,Harry Potter Store,Empire State Building,Foot,,09:45,,0.6,10am - 9pm,40.748817,-73.985428
+19/11/2025,Wednesday,Empire State Building,New York Public Library,Foot,,,,0.4,10am tour,40.753181,-73.982254
+19/11/2025,Wednesday,New York Public Library,Grand Central Terminal,Bike,,,,0.3,10am - 8pm,40.7527,-73.9772
+19/11/2025,Wednesday,Grand Central Terminal,Chrysler Building,Foot,,,,0.1,,40.751652,-73.975311
+19/11/2025,Wednesday,Chrysler Building,Rockefeller Center,Foot,,,,0.6,,40.7587,-73.9788
+19/11/2025,Wednesday,Rockefeller Center,Nintendo Store,Foot,,,,0,,40.758,-73.9787
+19/11/2025,Wednesday,Nintendo Store,Lego Store,Foot,,,,0,,40.759,-73.9771
+19/11/2025,Wednesday,Lego Store,Radio City Music Hall,Foot,,,,0.2,10am - 9pm,40.7599,-73.98
+19/11/2025,Wednesday,Radio City Music Hall,Times Square,Foot,,,,0.3,,40.7589,-73.9851
+19/11/2025,Wednesday,Times Square,McGee's Pub,Foot,,,,0.4,,40.762,-73.9812
+19/11/2025,Wednesday,McGee's Pub,The Lexington,Bike,,20:00,,1.1,8pm reservation ,40.755,-73.9733
+20/11/2025,Thursday,The Lexington,Leo's Bagels,Subway,07:00,,00:30,4.2,,40.7044,-74.0107
+20/11/2025,Thursday,Leo's Bagels,Battery Park,Foot,,,,0.5,6am - 4pm,40.703564,-74.016678
+20/11/2025,Thursday,Battery Park,Statue of Liberty,Ferry,09:00,,,,8:45am ferry,40.689247,-74.044502
+20/11/2025,Thursday,Statue of Liberty,Battery Park,Ferry,,,,,,40.703564,-74.016678
+20/11/2025,Thursday,Battery Park,One World Trade Center,Foot,,,,0.6,,40.712742,-74.013382
+20/11/2025,Thursday,One World Trade Center,Hook & Ladder 8,Foot,,,,0.7,,40.7196,-74.0066
+20/11/2025,Thursday,Hook & Ladder 8,Brooklyn Bridge,Bike,,,,1.1,,40.7057,-73.9964
+20/11/2025,Thursday,Brooklyn Bridge,Washington & Water Street,Foot,,,,1,,40.7032,-73.9919
+20/11/2025,Thursday,Washington & Water Street,Pebble Beach,Foot,,,,0.1,,40.7032,-73.9934
+20/11/2025,Thursday,Pebble Beach,The Lexington,Subway,,,,5.4,,40.755,-73.9733
+21/11/2025,Friday,The Lexington,Trump Tower,Foot,,,,0.7,,40.7625,-73.9738
+21/11/2025,Friday,Trump Tower,55 Central Park West (Ghostbusters),Bike,,,,1.2,,40.7722,-73.9791
+21/11/2025,Friday,55 Central Park West (Ghostbusters),The Dakota,Bike,,,,0.4,,40.7736,-73.976
+21/11/2025,Friday,The Dakota,Strawberry Fields,Foot,,,,0.1,,40.7718,-73.9715
+21/11/2025,Friday,Strawberry Fields,Bethesda Fountain,Foot,,,,0.4,,40.77431,-73.97083
+21/11/2025,Friday,Bethesda Fountain,Belvedere Castle,Foot,,,,0.4,,40.7794,-73.9691
+21/11/2025,Friday,Belvedere Castle,Natural History Museum,Foot,,,,0.3,,40.781303,-73.974113
+21/11/2025,Friday,Natural History Museum,Zabar's,Foot,,,,0.4,10am - 5:30pm,40.7794,-73.9815
+21/11/2025,Friday,Zabar's,Washington Square Arch,Bike,,,,5.1,Midafternoon Snack,40.73099,-73.99805
+21/11/2025,Friday,Washington Square Arch,90 Bedford St (Friends),Bike,,,,0.5,,40.732218,-74.005201
+21/11/2025,Friday,90 Bedford St (Friends),The High Line,Bike,,,,0.7,,40.73989534,-74.00817977
+21/11/2025,Friday,The High Line,The Vessel,Foot,,,,1.1,7am - 10pm,40.75353485,-74.00206028
+21/11/2025,Friday,The Vessel,Skylight Diner (402W 34th St),Foot,,,,0.4,Dinner,40.753533,-73.996652
+21/11/2025,Friday,Skylight Diner (402W 34th St),The Lexington,Subway,,,,2,6am - 11:30pm,40.755,-73.9733
+22/11/2025,Saturday,The Lexington,"The Garden People, Riverside Park",Subway,,,,3.3,,40.7735,-73.984
+22/11/2025,Saturday,"The Garden People, Riverside Park",You've Got Mail exterior (328w 89th st),Foot,,,,0.2,,40.7831,-73.9783
+22/11/2025,Saturday,You've Got Mail exterior (328w 89th st),Belnord Apartments (Only Murders),Foot,,,,0.4,,40.78833,-73.97611
+22/11/2025,Saturday,Belnord Apartments (Only Murders),Cafe Lalo (201W 83rd St),Foot,,,,0.2,,40.78589913,-73.97667851
+22/11/2025,Saturday,Cafe Lalo (201W 83rd St),Gray's Papaya,Foot,,,,0.6,Lunch,40.77840247,-73.98161042
+22/11/2025,Saturday,Gray's Papaya,The Lexington,Subway,,,,2.4,,40.755,-73.9733
+22/11/2025,Saturday,The Lexington,JFK Airport,Yellow Taxi,14:50,15:50,01:00,14.5,,40.6413,-73.7781
+22/11/2025,Saturday,JFK Airport,Heathrow,Plane,18:50,06:45,06:55,3442,,51.47002,-0.454295
+23/11/2025,Sunday,Heathrow,Poole,Car,07:45,09:45,02:00,95.7,,50.71286863,-1.992167787
