@@ -1,7 +1,6 @@
-,,,,,,,,,,,,,,,,By Locations,,,,,,Sunrise,Sunset,Low,High ,Avg
-Date,Day,From,To,Mode,Departure,Arrival,Duration,Distance (miles),To-do,Latitude,Longitude,,,Modes,,Date,Day,Location,,,LV,06:15,16:34,8.5캜,19.3캜,13.5캜
-12/11/2025,Wednesday,Poole,Heathrow,Car,10:45,12:55,02:10,95.7,,51.47002,-0.454295,,,Plane,,12/11/2025,Wednesday,UK ? LV,,,SF,06:50,16:57,9.0캜,17.1캜,12.4캜
-12/11/2025,Wednesday,Heathrow,Harry Reid Airport,Plane,16:05,18:50,10:45,5229,,36.083134,-115.148315,,,Car,,13/11/2025,Thursday,LV,,,NY,06:46,16:35,4.4캜,11.9캜,7.7캜
+Date,Day,From,To,Mode,Departure,Arrival,Duration,Distance (miles),To-do,Latitude,Longitude,,,Modes,,Date,Day,Location,,,LV,06:15,16:34,8.5째C,19.3째C,13.5째C
+12/11/2025,Wednesday,Poole,Heathrow,Car,10:45,12:55,02:10,95.7,,51.47002,-0.454295,,,Plane,,12/11/2025,Wednesday,UK ? LV,,,SF,06:50,16:57,9.0째C,17.1째C,12.4째C
+12/11/2025,Wednesday,Heathrow,Harry Reid Airport,Plane,16:05,18:50,10:45,5229,,36.083134,-115.148315,,,Car,,13/11/2025,Thursday,LV,,,NY,06:46,16:35,4.4째C,11.9째C,7.7째C
 12/11/2025,Wednesday,Harry Reid Airport,Park MGM,Uber,19:50,20:00,00:10,2.9,,36.1042656,-115.1743894,,,Foot,,14/11/2025,Friday,LV,,,,,,,,
 12/11/2025,Wednesday,Park MGM,Neon Museum,Uber,,21:00,,7,Old Neon Signs (last admission 9pm),36.177007,-115.135372,,,Tram\Bus,,15/11/2025,Saturday,LV ? SF,,,,,,,,
 12/11/2025,Wednesday,Neon Museum,Fremont Street,Uber,,,,1,5pm - 9pm,36.170719,-115.143929,,,Monorail,,16/11/2025,Sunday,SF,,,,,,,,
@@ -112,3 +111,4 @@ Date,Day,From,To,Mode,Departure,Arrival,Duration,Distance (miles),To-do,Latitude
 22/11/2025,Saturday,The Lexington,JFK Airport,Yellow Taxi,14:50,15:50,01:00,14.5,,40.6413,-73.7781,,,,,,,,,,,,,,,
 22/11/2025,Saturday,JFK Airport,Heathrow,Plane,18:50,06:45,06:55,3442,,51.47002,-0.454295,,,,,,,,,,,,,,,
 23/11/2025,Sunday,Heathrow,Poole,Car,07:45,09:45,02:00,95.7,,50.71286863,-1.992167787,,,,,,,,,,,,,,,
+
