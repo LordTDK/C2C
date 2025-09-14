@@ -1,0 +1,207 @@
+--- a/index (1).html
++++ b/index (1).html
+@@ -536,51 +536,159 @@
+         /**
+          * Renders the list of upcoming locations.
+          */
+-        function renderNextStops() {
+-            const list = document.getElementById('nextStopsList');
+-            list.innerHTML = '';
+-            
+-            const doneIds = JSON.parse(localStorage.getItem('doneIds') || '[]');
+-            const today = allDates[currentIndex];
+-            const upcomingEvents = events.filter(e => {
+-                const eventDateIndex = allDates.indexOf(e.date);
+-                const todayIndex = allDates.indexOf(today);
+-                return eventDateIndex >= todayIndex && !doneIds.includes(e.id);
+-            });
+-            
+-            const uniqueLocations = new Set();
+-            for(const event of upcomingEvents) {
+-                if(event.details['To']) {
+-                    uniqueLocations.add(event.details['To']);
+-                } else if(event.details['From']) {
+-                    uniqueLocations.add(event.details['From']);
+-                }
+-            }
+-            
+-            if (uniqueLocations.size === 0) {
+-                list.innerHTML = `<div class="empty">No upcoming stops to display.</div>`;
+-                return;
+-            }
+-            
+-            // Limit to the next 5 unique locations
+-            const locationsToShow = Array.from(uniqueLocations).slice(0, 5);
+-            
+-            for(const location of locationsToShow) {
+-                const card = document.createElement('div');
+-                card.className = 'card';
+-                card.innerHTML = `
+-                    <div class="title">${location}</div>
+-                    <div class="details">
+-                        <div class="detail-row">
+-                            <span class="detail-label">Map:</span>
+-                            <span class="clickable-location">Get Directions</span>
+-                        </div>
+-                    </div>
+-                `;
+-                card.querySelector('.clickable-location').addEventListener('click', () => openInMaps(location));
+-                list.appendChild(card);
+-            }
+-        }
++        
++async function renderNextStops() {
++    const list = document.getElementById('nextStopsList');
++    list.innerHTML = '<div class="empty">Finding nearby upcoming stops…</div>';
++
++    // Helpers
++    function toNumberSafe(v) {
++        if (v === null || v === undefined) return null;
++        const n = Number(String(v).trim());
++        return Number.isFinite(n) ? n : null;
++    }
++
++    function extractCoordsFromEvent(event, preferTo = true) {
++        const get = (obj, k) => (obj && (obj[k] !== undefined) ? obj[k] : undefined);
++
++        const candidates = [
++            { lat: get(event, 'Latitude'), lon: get(event, 'Longitude'), label: event.details && event.details['To'] ? event.details['To'] : (event.To || event.to) },
++            { lat: get(event, 'latitude'), lon: get(event, 'longitude'), label: event.details && event.details['To'] ? event.details['To'] : (event.To || event.to) },
++            { lat: get(event, 'lat'), lon: get(event, 'lng'), label: event.details && event.details['To'] ? event.details['To'] : (event.To || event.to) },
++            { lat: get(event, 'lat'), lon: get(event, 'lon'), label: event.details && event.details['To'] ? event.details['To'] : (event.To || event.to) }
++        ];
++
++        if (event.details && typeof event.details === 'object') {
++            candidates.push({ lat: get(event.details, 'Latitude'), lon: get(event.details, 'Longitude'), label: event.details['To'] || event.details['to'] || event.details['Place'] });
++            candidates.push({ lat: get(event.details, 'latitude'), lon: get(event.details, 'longitude'), label: event.details['To'] || event.details['to'] || event.details['Place'] });
++        }
++        if (event.fields && typeof event.fields === 'object') {
++            candidates.push({ lat: get(event.fields, 'Latitude'), lon: get(event.fields, 'Longitude'), label: event.fields['To'] || event.fields['Place'] });
++        }
++
++        for (const c of candidates) {
++            const lat = toNumberSafe(c.lat);
++            const lon = toNumberSafe(c.lon);
++            if (lat !== null && lon !== null) {
++                let label = c.label || event.To || event['To'] || event.From || event['From'] || (event.details && event.details['To']) || `${lat.toFixed(5)},${lon.toFixed(5)}`;
++                return { lat, lon, label };
++            }
++        }
++        return null;
++    }
++
++    function haversineDistanceMeters(lat1, lon1, lat2, lon2) {
++        const toRad = x => x * Math.PI / 180.0;
++        const R = 6371000;
++        const dLat = toRad(lat2 - lat1);
++        const dLon = toRad(lon2 - lon1);
++        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
++                  Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
++                  Math.sin(dLon/2) * Math.sin(dLon/2);
++        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
++        return R * c;
++    }
++
++    function getCurrentPositionPromise(options = { enableHighAccuracy: true, timeout: 10000 }) {
++        return new Promise((resolve, reject) => {
++            if (!navigator.geolocation) return reject(new Error("Geolocation not supported"));
++            navigator.geolocation.getCurrentPosition(
++                pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
++                err => reject(err),
++                options
++            );
++        });
++    }
++
++    const doneIds = JSON.parse(localStorage.getItem('doneIds') || '[]');
++    const today = allDates[currentIndex];
++    const upcomingEvents = events.filter(e => {
++        const eventDateIndex = allDates.indexOf(e.date);
++        const todayIndex = allDates.indexOf(today);
++        return eventDateIndex >= todayIndex && !doneIds.includes(e.id);
++    });
++
++    const uniqueMap = new Map();
++    for (const ev of upcomingEvents) {
++        let coord = null;
++        if (ev.To || (ev.details && ev.details['To'])) {
++            coord = extractCoordsFromEvent(ev, true);
++        }
++        if (!coord && (ev.From || (ev.details && ev.details['From']))) {
++            coord = extractCoordsFromEvent(ev, false);
++        }
++        if (!coord) {
++            coord = extractCoordsFromEvent(ev, true) || extractCoordsFromEvent(ev, false);
++        }
++
++        if (coord) {
++            const key = `${coord.lat.toFixed(6)},${coord.lon.toFixed(6)}|${coord.label}`;
++            if (!uniqueMap.has(key)) {
++                uniqueMap.set(key, { label: coord.label, lat: coord.lat, lon: coord.lon, events: [ev] });
++            } else {
++                uniqueMap.get(key).events.push(ev);
++            }
++        }
++    }
++
++    if (uniqueMap.size === 0) {
++        list.innerHTML = `<div class="empty">No coordinate data found for upcoming stops. Make sure your CSV has Latitude and Longitude columns and they were parsed into each event.</div>`;
++        return;
++    }
++
++    let userPos;
++    try {
++        userPos = await getCurrentPositionPromise();
++    } catch (err) {
++        list.innerHTML = `<div class="empty">Unable to get your location. Please allow location access in your browser to see nearby stops.</div>`;
++        return;
++    }
++
++    const arr = [];
++    for (const [k, v] of uniqueMap.entries()) {
++        const meters = haversineDistanceMeters(userPos.lat, userPos.lon, v.lat, v.lon);
++        arr.push({ label: v.label, lat: v.lat, lon: v.lon, meters, events: v.events });
++    }
++
++    arr.sort((a, b) => a.meters - b.meters);
++
++    const top = arr.slice(0, 15);
++    list.innerHTML = '';
++    for (const item of top) {
++        const card = document.createElement('div');
++        card.className = 'card';
++        const miles = (item.meters / 1609.344);
++        const km = (item.meters / 1000);
++
++        const countLabel = item.events && item.events.length > 1 ? ` (${item.events.length} upcoming)` : '';
++
++        card.innerHTML = `
++            <div class="title">${item.label}${countLabel}</div>
++            <div class="details">
++                <div class="detail-row"><span class="detail-label">Distance:</span> ${km.toFixed(1)} km (${miles.toFixed(1)} mi)</div>
++                <div class="detail-row"><span class="detail-label">Coordinates:</span> ${item.lat.toFixed(5)}, ${item.lon.toFixed(5)}</div>
++                <div class="detail-row"><span class="detail-label">Map:</span> <span class="clickable-location">Get Directions</span></div>
++            </div>
++        `;
++
++        card.querySelector('.clickable-location').addEventListener('click', () => {
++            const latlng = `${item.lat},${item.lon}`;
++            const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(latlng)}`;
++            window.open(url, '_blank');
++        });
++
++        list.appendChild(card);
++    }
++
++    const footer = document.createElement('div');
++    footer.className = 'detail-row';
++    footer.style.marginTop = '8px';
++    footer.style.fontSize = '0.85rem';
++    footer.style.color = '#9fb1d8';
++    footer.textContent = `Your location: ${userPos.lat.toFixed(5)}, ${userPos.lon.toFixed(5)}`;
++    list.appendChild(footer);
++}
++
+ 
+ 
+         /**
